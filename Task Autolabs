@@ -1,0 +1,433 @@
+{
+  "name": "Task Autolabs",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "receber-lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "17e014af-8936-4874-a33b-d19c136e0406",
+      "name": "Webhook",
+      "webhookId": "57b903b0-a119-4192-915a-54c5e47008c6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={\n  \"nome\": \"{{ $json.body.nome }}\",\n  \"empresa\": \"{{ $json.body.empresa }}\",\n  \"segmento\": \"{{ $json.body.segmento }}\",\n  \"telefone\": \"{{ $json.body.telefone }}\",\n  \"interesse\": \"{{ $json.body.interesse }}\",\n  \"como_conheceu\": \"{{ $json.body.como_conheceu }}\",\n  \"ja_fez_procedimento\": \"{{ $json.body.ja_fez_procedimento }}\"\n}",
+        "options": {
+          "systemMessage": "=Você é um especialista em qualificação de leads para a Clínica Renova. Sua tarefa é analisar dados de prospects e classificá-los com precisão para otimizar o follow-up de vendas.\n\n**Classificação de Leads:**\n\nAnalise os dados recebidos e classifique o lead em uma das três categorias abaixo, seguindo rigorosamente as regras definidas:\n\n**QUENTE:**\n- Interesse em procedimentos de alto ticket (harmonização facial, preenchimento, botox) E já realizou procedimento anteriormente E Origem de canal direto (Instagram, indicação). (Todas as condições devem ser atendidas).\n\n**MORNO:**\n- Interesse presente mas nunca realizou procedimento OU veio de canal frio (Google, Site) OU tem interesse em procedimentos de menor ticket (limpeza de pele).\n\n**FRIO:**\n- Sem interesse claro, segmento não relacionado, ou dados incompletos.\n\n**Saída Obrigatória:**\n\nRetorne APENAS um JSON válido no formato abaixo, sem blocos de código markdown, sem texto adicional antes ou depois:\n\n{\n  \"classificacao\": \"\",\n  \"justificativa\": \"\",\n  \"proxima_acao\": \"\",\n  \"mensagem\": \"\"\n}\n\n**Instruções Específicas:**\n\n- justificativa: Explique em 1-2 frases por que o lead recebeu essa classificação.\n- proxima_acao: Defina exatamente a ação imediata. Se QUENTE: \"Mensagem de agendamento no WhatsApp em até 1h\". Se MORNO: \"Sequência de nutrição, recontatar em 3 dias\". Se FRIO: \"Registrar no banco, não abordar\".\n- mensagem: Gere a mensagem preenchendo as variáveis com os dados do lead. Siga ESTRITAMENTE estes modelos:\n  - Se QUENTE: \"Olá [nome do lead]! Aqui é da Clínica Renova. Vi que você tem interesse em [interesse do lead] e temos horários disponíveis esta semana. Posso agendar uma avaliação gratuita para você? É rápido, só 15 minutinhos.\"\n  - Se MORNO: \"Oi [nome do lead]! Aqui é da Clínica Renova. Preparamos um conteúdo especial sobre [interesse do lead] pra quem está conhecendo. Posso te enviar? Sem compromisso nenhum.\"\n  - Se FRIO: Retorne null.\n\n**Dados do lead:**\n{{ JSON.stringify($json) }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "85a5112b-6462-4228-aea7-f1acbeb5bbe1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        224
+      ],
+      "id": "4c7fabea-f994-40f2-9a9f-d8fa2c1644f1",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VUxifSPvahBiM56t",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "78e1b021-5942-470f-b65a-6efc7016e6cf",
+              "name": "nome",
+              "value": "={{ $('Webhook').first().json.body.nome }}",
+              "type": "string"
+            },
+            {
+              "id": "01fc619b-45fb-4765-88ed-704cf91ebeca",
+              "name": "empresa",
+              "value": "={{ $('Webhook').first().json.body.empresa }}",
+              "type": "string"
+            },
+            {
+              "id": "7e17d483-b8dd-43b8-886d-bd2e7e99aaa4",
+              "name": "segmento",
+              "value": "={{ $('Webhook').item.json.body.segmento }}",
+              "type": "string"
+            },
+            {
+              "id": "64abde12-1579-4bca-815b-ef87d7260a05",
+              "name": "telefone",
+              "value": "={{ $('Webhook').item.json.body.telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "031ac8a5-c80d-41a9-831b-f6df8a5bfe9b",
+              "name": "interesse",
+              "value": "={{ $('Webhook').item.json.body.interesse }}",
+              "type": "string"
+            },
+            {
+              "id": "0527f983-72a3-431f-8b32-34b389fdc69d",
+              "name": "como_conheceu",
+              "value": "={{ $('Webhook').item.json.body.como_conheceu }}",
+              "type": "string"
+            },
+            {
+              "id": "e09b397f-0eb4-4070-8cff-a30607ffc6dd",
+              "name": "ja_fez_procedimento",
+              "value": "={{ $('Webhook').item.json.body.ja_fez_procedimento }}",
+              "type": "string"
+            },
+            {
+              "id": "45903dec-ab70-4d44-9964-f73f60e2e04d",
+              "name": "classificacao",
+              "value": "={{ JSON.parse($json.output).classificacao }}",
+              "type": "string"
+            },
+            {
+              "id": "ff5baa75-b326-4e2b-845f-b47264518692",
+              "name": "justificativa",
+              "value": "={{ JSON.parse($json.output).justificativa }}",
+              "type": "string"
+            },
+            {
+              "id": "767a6b58-3b16-4abb-9e72-21e118a70918",
+              "name": "proxima_acao",
+              "value": "={{ JSON.parse($json.output).proxima_acao }}",
+              "type": "string"
+            },
+            {
+              "id": "284cfd4a-21f5-44bc-b199-0c712ba9f926",
+              "name": "mensagem",
+              "value": "={{ JSON.parse($json.output).mensagem }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        0
+      ],
+      "id": "11017581-5808-48ae-a0ba-13ba44199531",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "tableId": "leads_qualificados",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "67ff8b63-d929-449b-b122-1b34fa81f458",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "2oGutfVJnCsXjxeA",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.classificacao }}",
+                    "rightValue": "QUENTE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6bd55958-71b9-4ea3-bb56-f996493ca100"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "890e4c2d-c9ce-40c7-b553-b146e99e066f",
+                    "leftValue": "={{ $json.classificacao }}",
+                    "rightValue": "MORNO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8b0fd82e-a222-48d4-9a38-2e8fa8a3e97b",
+                    "leftValue": "={{ $json.classificacao }}",
+                    "rightValue": "FRIO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        -16
+      ],
+      "id": "fe72c1ca-d92c-40ea-99c5-1597a4596938",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/87e7689b-a220-4633-961f-471882f542a1",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefone\": \"{{ $('Edit Fields').item.json.telefone }}\",\n  \"mensagem\": \"{{ $('Edit Fields').item.json.mensagem }}\",\n  \"classificacao\": \"{{ $('Edit Fields').item.json.classificacao }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        -80
+      ],
+      "id": "03f435da-9666-4a12-8194-0125ae62ffe7",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"classificacao\": \"{{ $('Edit Fields').item.json.classificacao }}\",\n  \"justificativa\": \"{{ $('Edit Fields').item.json.justificativa }}\",\n  \"proxima_acao\": \"{{ $('Edit Fields').item.json.proxima_acao }}\",\n  \"mensagem\": \"{{ $('Edit Fields').item.json.mensagem }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1696,
+        0
+      ],
+      "id": "7441bda1-a92a-487c-97a9-a8e1b910c50f",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads_qualificados",
+        "filterType": "string",
+        "filterString": "=id=eq.{{ $('Create a row').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "mensagem_enviada",
+              "fieldValue": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -80
+      ],
+      "id": "a04ead8a-a47a-41f3-b812-99b0be0d6f08",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "2oGutfVJnCsXjxeA",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "c7ec04ba-5eab-4479-a547-10b8c4d2bc0b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1456740d7cbb254762407b6a8b67890bd92e654ddfdcc653fb96b2ff1d7d96d0"
+  },
+  "nodeGroups": [],
+  "id": "duXKAQ1fbl8qTOd8",
+  "tags": []
+}
